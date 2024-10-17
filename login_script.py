@@ -7,7 +7,7 @@ import random
 import requests
 import os
 
-# 从环境变量中获取 Telegram Bot Token 和 Chat ID
+# Lấy Telegram Bot Token và Chat ID từ biến môi trường
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
@@ -17,17 +17,17 @@ def format_to_iso(date):
 async def delay_time(ms):
     await asyncio.sleep(ms / 1000)
 
-# 全局浏览器实例
+# Trình duyệt toàn cục
 browser = None
 
-# telegram消息
-message = 'serv00&ct8自动化脚本运行\n'
+# Thông báo Telegram
+message = 'serv00&ct8 script tự động đang chạy\n'
 
 async def login(username, password, panel):
     global browser
 
-    page = None  # 确保 page 在任何情况下都被定义
-    serviceName = 'ct8' if 'ct8' in panel else 'serv00'
+    page = None  # Đảm bảo page được định nghĩa trong mọi tình huống
+    serviceName = 'ct8' nếu 'ct8' trong panel khác thì 'serv00'
     try:
         if not browser:
             browser = await launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
@@ -47,7 +47,7 @@ async def login(username, password, panel):
         if login_button:
             await login_button.click()
         else:
-            raise Exception('无法找到登录按钮')
+            raise Exception('Không thể tìm thấy nút đăng nhập')
 
         await page.waitForNavigation()
 
@@ -59,7 +59,7 @@ async def login(username, password, panel):
         return is_logged_in
 
     except Exception as e:
-        print(f'{serviceName}账号 {username} 登录时出现错误: {e}')
+        print(f'Lỗi khi đăng nhập tài khoản {serviceName} {username}: {e}')
         return False
 
     finally:
@@ -68,14 +68,14 @@ async def login(username, password, panel):
 
 async def main():
     global message
-    message = 'serv00&ct8自动化脚本运行\n'
+    message = 'serv00&ct8 script tự động đang chạy\n'
 
     try:
         async with aiofiles.open('accounts.json', mode='r', encoding='utf-8') as f:
             accounts_json = await f.read()
         accounts = json.loads(accounts_json)
     except Exception as e:
-        print(f'读取 accounts.json 文件时出错: {e}')
+        print(f'Lỗi khi đọc file accounts.json: {e}')
         return
 
     for account in accounts:
@@ -83,25 +83,25 @@ async def main():
         password = account['password']
         panel = account['panel']
 
-        serviceName = 'ct8' if 'ct8' in panel else 'serv00'
+        serviceName = 'ct8' nếu 'ct8' trong panel khác thì 'serv00'
         is_logged_in = await login(username, password, panel)
 
         if is_logged_in:
             now_utc = format_to_iso(datetime.utcnow())
             now_beijing = format_to_iso(datetime.utcnow() + timedelta(hours=8))
-            success_message = f'{serviceName}账号 {username} 于北京时间 {now_beijing}（UTC时间 {now_utc}）登录成功！'
+            success_message = f'Tài khoản {serviceName} {username} đã đăng nhập thành công vào giờ Bắc Kinh {now_beijing} (giờ UTC {now_utc})!'
             message += success_message + '\n'
             print(success_message)
         else:
-            message += f'{serviceName}账号 {username} 登录失败，请检查{serviceName}账号和密码是否正确。\n'
-            print(f'{serviceName}账号 {username} 登录失败，请检查{serviceName}账号和密码是否正确。')
+            message += f'Tài khoản {serviceName} {username} đăng nhập thất bại, vui lòng kiểm tra lại tài khoản và mật khẩu {serviceName}.\n'
+            print(f'Tài khoản {serviceName} {username} đăng nhập thất bại, vui lòng kiểm tra lại tài khoản và mật khẩu {serviceName}.')
 
         delay = random.randint(1000, 8000)
         await delay_time(delay)
         
-    message += f'所有{serviceName}账号登录完成！'
+    message += f'Tất cả các tài khoản {serviceName} đã hoàn thành đăng nhập!'
     await send_telegram_message(message)
-    print(f'所有{serviceName}账号登录完成！')
+    print(f'Tất cả các tài khoản {serviceName} đã hoàn thành đăng nhập!')
 
 async def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -112,7 +112,7 @@ async def send_telegram_message(message):
             'inline_keyboard': [
                 [
                     {
-                        'text': '问题反馈❓',
+                        'text': 'Phản hồi vấn đề❓',
                         'url': 'https://t.me/yxjsjl'
                     }
                 ]
@@ -125,9 +125,9 @@ async def send_telegram_message(message):
     try:
         response = requests.post(url, json=payload, headers=headers)
         if response.status_code != 200:
-            print(f"发送消息到Telegram失败: {response.text}")
+            print(f"Gửi tin nhắn đến Telegram thất bại: {response.text}")
     except Exception as e:
-        print(f"发送消息到Telegram时出错: {e}")
+        print(f"Lỗi khi gửi tin nhắn đến Telegram: {e}")
 
 if __name__ == '__main__':
     asyncio.run(main())
