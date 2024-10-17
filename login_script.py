@@ -21,7 +21,7 @@ async def delay_time(ms):
 browser = None
 
 # telegram消息
-message = 'serv00&ct8自动化脚本运行\n'
+message = 'serv00&ct8 script tự động đang chạy\n'
 
 async def login(username, password, panel):
     global browser
@@ -47,7 +47,7 @@ async def login(username, password, panel):
         if login_button:
             await login_button.click()
         else:
-            raise Exception('无法找到登录按钮')
+            raise Exception('Không thể tìm thấy nút đăng nhập')
 
         await page.waitForNavigation()
 
@@ -68,14 +68,14 @@ async def login(username, password, panel):
 
 async def main():
     global message
-    message = 'serv00&ct8自动化脚本运行\n'
+    message = 'serv00&ct8 script tự động đang chạy\n\n'
 
     try:
         async with aiofiles.open('accounts.json', mode='r', encoding='utf-8') as f:
             accounts_json = await f.read()
         accounts = json.loads(accounts_json)
     except Exception as e:
-        print(f'读取 accounts.json 文件时出错: {e}')
+        print(f'Lỗi khi đọc file accounts.json: {e}')
         return
 
     for account in accounts:
@@ -88,9 +88,9 @@ async def main():
 
         if is_logged_in:
             now_utc = format_to_iso(datetime.utcnow())
-            now_beijing = format_to_iso(datetime.utcnow() + timedelta(hours=8))
-            success_message = f'Tài khoản {serviceName} {username} đã đăng nhập thành công vào giờ Bắc Kinh {now_beijing} (giờ UTC {now_utc})!！'
-            message += success_message + '\n'
+            now_beijing = format_to_iso(datetime.utcnow() + timedelta(hours=7))
+            success_message = f'Tài khoản {serviceName} {username} đã đăng nhập thành công vào giờ Hà Nội {now_beijing} (giờ UTC {now_utc})!'
+            message += success_message + '\n\n'
             print(success_message)
         else:
             message += f'Tài khoản {serviceName} {username} đăng nhập thất bại, vui lòng kiểm tra lại tài khoản và mật khẩu {serviceName}.\n'
@@ -112,7 +112,7 @@ async def send_telegram_message(message):
             'inline_keyboard': [
                 [
                     {
-                        'text': '问题反馈❓',
+                        'text': 'Phản hồi vấn đề❓',
                         'url': 'https://t.me/yxjsjl'
                     }
                 ]
